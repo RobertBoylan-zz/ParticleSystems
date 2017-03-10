@@ -3,7 +3,6 @@
 #include "Texture.h"
 #include "Camera.h"
 #define PARTICLE_COUNT 10000
-#define FIRE_PARTICLE_COUNT 1
 
 enum {
 	SNOW_DEMO, RAIN_DEMO, STARS_DEMO, CLOUD_DEMO, FOUNTAIN_DEMO, SMOKE_DEMO, FIRE_DEMO
@@ -29,7 +28,7 @@ public:
 	ParticleEmitter();
 
 	/* Finds the next particle in the system that has not been used */
-	int FindNextParticle();
+	int FindNextParticle(int mode);
 	/* Load the particle's attributes */
 	void LoadParticles(int mode);
 	/* Draw each particle */

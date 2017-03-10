@@ -9,7 +9,7 @@ ParticleEmitter::ParticleEmitter(){
 	offset.x = offset.y = RandomFloat(-0.5f, 0.5f);
 }
 
-int ParticleEmitter::FindUnusedParticle() {
+int ParticleEmitter::FindNextParticle() {
 
 	for (int i = previousParticle; i < PARTICLE_COUNT; i++) {
 		if (particleList[i].life < 0) {
@@ -203,7 +203,7 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode) {
 
 		for (int i = 0; i < newParticle; i++) {
 			
-			int index = FindUnusedParticle();
+			int index = FindNextParticle();
 			float spread;
 			vec3 mainDirection, randomDirection;
 			vec3 deltaPosition = camera.getDeltaPosition();

@@ -1,0 +1,9 @@
+﻿  Main.cpp
+  Generating code
+c:\users\robert\documents\visual studio 2015\projects\particlesystems\particlesystems\demo.cpp(37): warning C4715: 'Demo::CreateDemoWindow': not all control paths return a value
+  2 of 137 functions ( 1.5%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  ParticleSystems.vcxproj -> C:\Users\Robert\documents\visual studio 2015\Projects\ParticleSystems\Release\ParticleSystems.exe
+  ParticleSystems.vcxproj -> C:\Users\Robert\documents\visual studio 2015\Projects\ParticleSystems\Release\ParticleSystems.pdb (Full PDB)

@@ -1,0 +1,24 @@
+#version 330 core
+
+in vec2 UV;
+in vec4 particleColour;
+
+out vec4 colour;
+
+uniform sampler2D myTexture;
+
+vec4 texColour;
+
+void main() {
+	
+	texColour = texture(myTexture, UV);
+	
+	if(texColour.a < 0.1) {
+       		discard;
+	}
+	//if(texColour.r < 0.1 && texColour.g < 0.1 && texColour.b < 0.1) {
+    //   		discard;
+	//}
+	
+	colour = texColour * particleColour.a;
+}

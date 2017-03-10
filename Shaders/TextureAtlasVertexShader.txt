@@ -7,13 +7,12 @@ layout(location = 2) in vec4 colour;
 out vec2 UV;
 out vec4 particleColour;
 
-uniform float numOfRows;
-uniform vec2 offset;
-
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
 uniform mat4 viewProjectionMatrix;
 uniform mat4 orientation;
+uniform float numOfRows;
+uniform vec2 offset;
 
 void main() {
 	

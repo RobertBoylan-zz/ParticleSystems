@@ -30,10 +30,3 @@ using glm::mat3;
 using glm::mat4;
 using glm::perspective;
 using namespace std;
-
-enum ExitCodes
-{
-	EC_NO_ERROR = 0,
-	EC_GLFW_INIT_FAIL = 1,
-	EC_GLFW_FIRST_WINDOW_CREATION_FAIL = 2,
-};

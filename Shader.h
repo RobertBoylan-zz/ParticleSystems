@@ -14,7 +14,7 @@ public:
 	/* Reads the shader files */
 	char* ReadShaderSource(const char* shaderFile);
 	/* Adds the shader object to the program object */
-    void AddShader(GLuint shaderProgram, const char* shaderText, GLenum shaderType);
+    	void AddShader(GLuint shaderProgram, const char* shaderText, GLenum shaderType);
 	/* Compiles the shader files */
 	GLuint CompileShaders();
 

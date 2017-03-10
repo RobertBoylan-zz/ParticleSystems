@@ -1,8 +1,7 @@
 #pragma once
 #include "Globals.h"
 
-class Camera
-{
+class Camera {
 
 public:
 	Camera();

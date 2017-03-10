@@ -29,7 +29,7 @@ public:
 	ParticleEmitter();
 
 	/* Finds the next particle in the system that has not been used */
-	int FindUnusedParticle();
+	int FindNextParticle();
 	/* Load the particle's attributes */
 	void LoadParticles(int mode);
 	/* Draw each particle */

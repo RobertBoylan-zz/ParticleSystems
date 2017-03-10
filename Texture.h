@@ -11,8 +11,8 @@
 #define CLOUD_TEXTURE "C:/Users/Robert/Documents/Visual Studio 2015/Projects/ParticleSystems/ParticleSystems/Textures/Cloud.dds"
 #define FIRE_TEXTURE "C:/Users/Robert/Documents/Visual Studio 2015/Projects/ParticleSystems/ParticleSystems/Textures/Fire.dds"
 
-class Texture
-{
+class Texture {
+
 public:
 	Texture();
 

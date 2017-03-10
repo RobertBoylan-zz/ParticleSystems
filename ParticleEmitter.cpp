@@ -187,7 +187,7 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode) {
 
 	double lastTime = glfwGetTime();
 	
-	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_1) != GLFW_PRESS && !glfwWindowShouldClose(window)) {
+	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window)) {
 		
 		/* Clear the screen */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

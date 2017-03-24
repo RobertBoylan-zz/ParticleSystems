@@ -37,10 +37,12 @@ void Camera::CameraInputs(GLFWwindow* window) {
 	const float limit = 89.0 * PI / 180.0;
 
 	if (pitch < -limit) {
+		
 		pitch = -limit;
 	}
 
 	if (pitch > limit) {
+		
 		pitch = limit;
 	}
 
@@ -55,25 +57,30 @@ void Camera::CameraInputs(GLFWwindow* window) {
 
 	/* Move forward */
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+		
 		position += viewDirection * deltaTime * moveSpeed;
 		deltaPosition = position - initialPosition;
 	}
 	/* Move backward */
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		
 		position -= viewDirection * deltaTime * moveSpeed;
 		deltaPosition = position - initialPosition;
 	}
 	/* Strafe right */
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		
 		position += right * deltaTime * moveSpeed;
 		deltaPosition = position - initialPosition;
 	}
 	/* Strafe left */
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		
 		position -= right * deltaTime * moveSpeed;
 		deltaPosition = position - initialPosition;
 	}
 
+	/* Projection matrix */
 	projectionMatrix = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 	/* Camera matrix */
 	viewMatrix = glm::lookAt(position, position + viewDirection, UP);

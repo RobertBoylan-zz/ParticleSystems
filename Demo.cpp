@@ -1,6 +1,10 @@
 #include "Demo.h"
 
-Demo::Demo() {}
+Demo::Demo() {
+
+	gravity = -9.81f;
+	pause = false;
+}
 
 int Demo::CreateDemoWindow(int _mode) {
 
@@ -38,55 +42,87 @@ int Demo::CreateDemoWindow(int _mode) {
 
 void Demo::DemoInitialize() {
 
-	if (mode == SNOW_DEMO) {
-		particle.LoadParticles(mode);
-	}
-	else if (mode == RAIN_DEMO) {
-		particle.LoadParticles(mode);
-	}
-	else if (mode == STARS_DEMO) {
-		particle.LoadParticles(mode);
-	}
-	else if (mode == CLOUD_DEMO) {
-		particle.LoadParticles(mode);
-	}
-	else if (mode == FOUNTAIN_DEMO) {
-		particle.LoadParticles(mode);
-	}
-	else if (mode == SMOKE_DEMO) {
-		particle.LoadParticles(mode);
-	}
-	else if (mode == FIRE_DEMO) {
-		particle.LoadParticles(mode);
-	}
+	particle.LoadParticles(mode);
 }
 
 void Demo::DemoDisplay() {
 
-	if (mode == SNOW_DEMO) {
-		particle.DrawParticles(window, mode);
-	}
-	else if (mode == RAIN_DEMO) {
-		particle.DrawParticles(window, mode);
-	}
-	else if (mode == STARS_DEMO) {
-		particle.DrawParticles(window, mode);
-	}
-	else if (mode == CLOUD_DEMO) {
-		particle.DrawParticles(window, mode);
-	}
-	else if (mode == FOUNTAIN_DEMO) {
-		particle.DrawParticles(window, mode);
-	}
-	else if (mode == SMOKE_DEMO) {
-		particle.DrawParticles(window, mode);
-	}
-	else if (mode == FIRE_DEMO) {
-		particle.DrawParticles(window, mode);
+	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window)) {
+		
+		particle.DrawParticles(window, mode, gravity, pause);
+		PauseDemo();
+		ChangeParameter();
+		PickDemo();
+		
+		/* Swap buffers */
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 }
 
 void Demo::CleanUp() {
 
 	particle.CleanUp(window);
+}
+
+void Demo::PauseDemo() {
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
+
+		pause = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+
+		pause = true;
+	}
+}
+
+void Demo::ChangeParameter() {
+
+	if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+
+		if (mode == FOUNTAIN_DEMO && gravity <= 15.0f) {
+
+			gravity += 0.02f;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+
+		if (mode == FOUNTAIN_DEMO && gravity >= -100.0f) {
+
+			gravity -= 0.02f;
+		}
+	}
+}
+
+void Demo::PickDemo() {
+
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+
+		mode = SNOW_DEMO;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+
+		mode = RAIN_DEMO;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+
+		mode = STARS_DEMO;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+
+		mode = CLOUD_DEMO;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+
+		mode = FOUNTAIN_DEMO;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+
+		mode = SMOKE_DEMO;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+
+		mode = FIRE_DEMO;
+	}
 }

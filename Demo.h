@@ -14,9 +14,17 @@ public:
 	void DemoDisplay();
 	/* Clear all of the data */
 	void CleanUp();
+	/* Pause the demo */
+	void PauseDemo();
+	/* Change the value of a parameter in the demo */
+	void ChangeParameter();
+	/* Pick which demo to render */
+	void PickDemo();
 
 private:
 	int mode;
+	float gravity;
+	bool pause;
 	GLFWwindow* window;
 	Camera camera;
 	ParticleEmitter particle;

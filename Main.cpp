@@ -1,8 +1,3 @@
-/* Please note that to change to the different demos,
-   simply copy the desired enum from ParticleEmitter.h
-   and paste it into the CreateDemoWindow() function
-   below. */
-
 #include "Demo.h"
 
 Demo demo;
@@ -11,8 +6,7 @@ Demo demo;
 int main(int argc, char** argv) {
 
 	/* Initialise GLFW */
-	if (!glfwInit())
-	{
+	if (!glfwInit()) {
 		fprintf(stderr, "Failed to initialize GLFW\n");
 		getchar();
 		return -1;

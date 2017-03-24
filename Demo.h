@@ -14,10 +14,10 @@ public:
 	void DemoDisplay();
 	/* Clear all of the data */
 	void CleanUp();
-	/* Pause the demo */
-	void PauseDemo();
 	/* Change the value of a parameter in the demo */
 	void ChangeParameter();
+	/* Pause the demo */
+	void PauseDemo();
 	/* Pick which demo to render */
 	void PickDemo();
 

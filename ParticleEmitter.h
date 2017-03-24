@@ -11,14 +11,14 @@ enum {
 /* CPU representation of a particle */
 struct Particle {
 	
+	float size, life, cameraDistance;
 	vec3 position, speed;
 	unsigned char red, green, blue, alpha;
-	float size, life, camDistance; 
 
 	/* Sort in reverse order, far particles drawn first */
 	bool operator<(const Particle& p) const {
 
-		return this->camDistance > p.camDistance;
+		return this->cameraDistance > p.cameraDistance;
 	}
 };
 
@@ -32,30 +32,26 @@ public:
 	/* Load the particle's attributes */
 	void LoadParticles(int mode);
 	/* Draw each particle */
-	void DrawParticles(GLFWwindow* window, int mode);
+	void DrawParticles(GLFWwindow* window, int mode, float gravity, bool pause);
 	/* Clear all of the data */
 	void CleanUp(GLFWwindow* window);
-	/* Get a random float between two values */
-	float RandomFloat(float min, float max);
 	/* Gets the number of rows and columns in the texture sprite sheet */
 	void TextureAtlas(int spriteIndex, const int numOfRows, const int numOfColumns);
 	/* Changes the texture being binded to the particle, animating it */
 	void AnimateTexture(float maxAge, double age, int numOfTextures);
-	/* Returns the projection matrix */
-	mat4 getProjectionMatrix() { return projectionMatrix; }
-	/* Returns the view matrix */
-	mat4 getViewMatrix() { return viewMatrix; }
 
 private:
 	int previousParticle, textureIndex;
-	GLuint textureID, texture, shaderProgramID, VAO, cameraRightID, cameraUpID, viewProjMatrixID, orientationID, vertexBuffer, positionBuffer, colourBuffer, numOfRowsID, offsetID;
+	double lastTime;
+	GLuint textureID, particleShaderProgramID, fireShaderProgramID, VAO, cameraRightID, cameraUpID, viewProjMatrixID, orientationID, vertexBuffer, positionBuffer, colourBuffer, numOfRowsID, offsetID;
+	GLuint snowflakeTexture, raindropTexture, starTexture, cloudTexture, fireTexture;
 	static GLfloat* particlePositionData;
 	static GLubyte* particleColourData; 
 	vec2 offset;
 	vec3 windEffect;
-	mat4 projectionMatrix, viewMatrix, orientation;
+	mat4 orientation;
 	Particle particleList[PARTICLE_COUNT];
 	Shader* shader;
 	Camera camera;
-	Texture particleTexture;
+	Texture texture;
 };

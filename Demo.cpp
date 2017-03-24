@@ -65,18 +65,6 @@ void Demo::CleanUp() {
 	particle.CleanUp(window);
 }
 
-void Demo::PauseDemo() {
-
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
-
-		pause = false;
-	}
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-
-		pause = true;
-	}
-}
-
 void Demo::ChangeParameter() {
 
 	if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
@@ -92,6 +80,18 @@ void Demo::ChangeParameter() {
 
 			gravity -= 0.02f;
 		}
+	}
+}
+
+void Demo::PauseDemo() {
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
+
+		pause = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+
+		pause = true;
 	}
 }
 

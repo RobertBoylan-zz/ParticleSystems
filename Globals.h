@@ -1,18 +1,11 @@
 #pragma once
-#include <windows.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <fstream>
 #include <string>
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
 #include <iostream>
-#include <list>
-#include <cstdio>
-#include <map>
 #include <algorithm>
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
@@ -25,8 +18,6 @@
 
 using glm::vec2;
 using glm::vec3;
-using glm::vec4;
-using glm::mat3;
 using glm::mat4;
 using namespace std;
 

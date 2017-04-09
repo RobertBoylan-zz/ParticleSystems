@@ -14,17 +14,14 @@ public:
 	void DemoDisplay();
 	/* Clear all of the data */
 	void CleanUp();
-	/* Change the value of a parameter in the demo */
-	void ChangeParameter();
-	/* Pause the demo */
-	void PauseDemo();
-	/* Pick which demo to render */
-	void PickDemo();
+	/* Performs and action given a keyboard input */
+	void KeyboardOperations();
 
 private:
 	int mode;
-	float gravity;
-	bool pause;
+	float gravity, particlesPerSecond;
+	bool pause, whiteBackground;
+	vec3 cameraPosition, fountainDirection;
 	GLFWwindow* window;
 	Camera camera;
 	ParticleEmitter particle;

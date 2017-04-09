@@ -27,12 +27,12 @@ class ParticleEmitter {
 public:
 	ParticleEmitter();
 
-	/* Finds the next particle in the system that has not been used */
-	int FindNextParticle(int mode);
 	/* Load the particle's attributes */
 	void LoadParticles(int mode);
 	/* Draw each particle */
-	void DrawParticles(GLFWwindow* window, int mode, float gravity, bool pause);
+	void DrawParticles(GLFWwindow* window, int mode, float gravity, float particlesPerSecond, vec3 fountainDirection, bool pause, bool whiteBackground);
+	/* Finds the next particle in the system that has not been used */
+	int NextParticle();
 	/* Clear all of the data */
 	void CleanUp(GLFWwindow* window);
 	/* Gets the number of rows and columns in the texture sprite sheet */
@@ -41,9 +41,9 @@ public:
 	void AnimateTexture(float maxAge, double age, int numOfTextures);
 
 private:
-	int previousParticle, textureIndex;
+	int currentParticle, textureIndex;
 	double lastTime;
-	GLuint textureID, particleShaderProgramID, fireShaderProgramID, VAO, cameraRightID, cameraUpID, viewProjMatrixID, orientationID, vertexBuffer, positionBuffer, colourBuffer, numOfRowsID, offsetID;
+	GLuint textureID, particleShaderProgramID, fireShaderProgramID, VAO, cameraHorizontalID, cameraVerticalID, viewProjMatrixID, orientationID, vertexBuffer, positionBuffer, colourBuffer, numOfRowsID, offsetID;
 	GLuint snowflakeTexture, raindropTexture, starTexture, cloudTexture, fireTexture;
 	static GLfloat* particlePositionData;
 	static GLubyte* particleColourData; 

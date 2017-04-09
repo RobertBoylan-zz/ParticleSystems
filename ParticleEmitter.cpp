@@ -5,50 +5,10 @@ GLubyte* ParticleEmitter::particleColourData = new GLubyte[4 * PARTICLE_COUNT];
 
 ParticleEmitter::ParticleEmitter(){
 
-	previousParticle = textureIndex = 0;
+	currentParticle = textureIndex = 0;
 	offset = vec2(RandomFloat(-0.2f, 0.2f), RandomFloat(-0.2f, 0.2f));
+	windEffect = vec3(RandomFloat(-1.0f, 1.0f), 0.0f, RandomFloat(-1.0f, 1.0f));
 	shader = NULL;
-}
-
-int ParticleEmitter::FindNextParticle(int mode) {
-
-	if (mode == FIRE_DEMO) {
-		
-		for (int i = previousParticle; i < (PARTICLE_COUNT / PARTICLE_COUNT); i++) {
-			
-			if (particleList[i].life < 0) {
-				
-				previousParticle = i;
-				
-				return i;
-			}
-		}
-	}
-	else {
-		
-		for (int i = previousParticle; i < PARTICLE_COUNT; i++) {
-			
-			if (particleList[i].life < 0) {
-				
-				previousParticle = i;
-				
-				return i;
-			}
-		}
-	}
-
-	for (int i = 0; i < previousParticle; i++) {
-		
-		if (particleList[i].life < 0) {
-			
-			previousParticle = i;
-			
-			return i;
-		}
-	}
-
-	/* All particles are taken, override the first one */
-	return 0;
 }
 
 void ParticleEmitter::LoadParticles(int mode) {
@@ -64,20 +24,20 @@ void ParticleEmitter::LoadParticles(int mode) {
 	shader = new Shader(VERTEX_SHADER, FRAGMENT_SHADER);
 	particleShaderProgramID = shader->CompileShaders();
 
-	shader = new Shader(TEXTURE_ATLAS_VERTEX_SHADER, TEXTURE_ATLAS_FRAGMENT_SHADER);
+	shader = new Shader(ANIMATED_VERTEX_SHADER, ANIMATED_FRAGMENT_SHADER);
 	fireShaderProgramID = shader->CompileShaders();
 
-	numOfRowsID = glGetUniformLocation(fireShaderProgramID, "numOfRows");
-	offsetID = glGetUniformLocation(fireShaderProgramID, "offset");
-	cameraRightID = glGetUniformLocation(particleShaderProgramID, "cameraRight");
-	cameraUpID = glGetUniformLocation(particleShaderProgramID, "cameraUp");
+	cameraHorizontalID = glGetUniformLocation(particleShaderProgramID, "cameraHorizontal");
+	cameraVerticalID = glGetUniformLocation(particleShaderProgramID, "cameraVertical");
 	viewProjMatrixID = glGetUniformLocation(particleShaderProgramID, "viewProjectionMatrix");
 	orientationID = glGetUniformLocation(particleShaderProgramID, "orientation");
 	textureID = glGetUniformLocation(particleShaderProgramID, "myTexture");
+	numOfRowsID = glGetUniformLocation(fireShaderProgramID, "numOfRows");
+	offsetID = glGetUniformLocation(fireShaderProgramID, "offset");
 
 	/* Load textures */
 	snowflakeTexture = texture.LoadDDSTexture(SNOWFLAKE_TEXTURE);
-	raindropTexture = texture.LoadDDSTexture(RAINDROP_TEXTURE);
+	raindropTexture = texture.LoadDDSTexture(DROPLET_TEXTURE);
 	starTexture = texture.LoadDDSTexture(STAR_TEXTURE);
 	cloudTexture = texture.LoadDDSTexture(CLOUD_TEXTURE);
 	fireTexture = texture.LoadDDSTexture(FIRE_TEXTURE);
@@ -120,50 +80,61 @@ void ParticleEmitter::LoadParticles(int mode) {
 	lastTime = glfwGetTime();
 }
 
-void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity, bool pause) {
+void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity, float particlesPerSecond, vec3 fountainDirection, bool pause, bool whiteBackground) {
 		
 	/* Clear the screen */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	if (!whiteBackground) {
+		
+		/* Background colour */
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+	else {
+
+		/* Background colour */
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	}
 
 	double currentTime = glfwGetTime();
 	double age = currentTime - lastTime;
 	lastTime = currentTime;
 
-	/* Move the camera given keyboard and mouse inputs */
-	camera.CameraInputs(window);
-
+	float spread;
+	vec3 mainDirection, randomDirection;
+	vec3 deltaPosition = camera.getDeltaPosition();
 	mat4 projectionMatrix = camera.getProjectionMatrix();
 	mat4 viewMatrix = camera.getViewMatrix();
 	mat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
-		
-	float spread;
-	vec3 mainDirection, randomDirection;
+
+	/* Move the camera given keyboard and mouse inputs */
+	camera.CameraInputs(window);
 
 	/* Generate a new particle */
 	int newParticle;
 		
 	if (!pause) {
 			
-		newParticle = (int)(age*1000.0f);
+		newParticle = (int)(age*particlesPerSecond);
 	}
 	else {
 
 		newParticle = 0;
 	}
 
-	if (newParticle > (int)(0.016f*1000.0f)) {
+	if (newParticle > (int)(0.016f*particlesPerSecond)) {
 			
-		newParticle = (int)(0.016f*1000.0f);
+		newParticle = (int)(0.016f*particlesPerSecond);
 	}
 
 	for (int i = 0; i < newParticle; i++) {
 		
-		int index = FindNextParticle(mode);
-		vec3 deltaPosition = camera.getDeltaPosition();
+		int index = NextParticle();
 
 		if (mode == SNOW_DEMO) {
 				
-			spread = 1.5f;
+			spread = RandomFloat(1.0f, 2.0f);
 			mainDirection = vec3(0.0f, -10.0f, 0.0f);
 			randomDirection = vec3(RandomFloat(-1.0f, 1.0f), RandomFloat(-1.0f, 1.0f), RandomFloat(-1.0f, 1.0f)); 
 			
@@ -173,13 +144,13 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 			particleList[index].red = 255.0f;
 			particleList[index].green = 255.0f;
 			particleList[index].blue = 255.0f;
-			particleList[index].alpha = (RandomFloat(0.0f, 255.0f)) / 3;
+			particleList[index].alpha = (RandomFloat(100.0f, 255.0f)) / 3;
 		}
 
 		else if (mode == RAIN_DEMO) {
 
-			spread = 1.5f;
-			mainDirection = vec3(0.0f, -15.0f, 0.0f);
+			spread = RandomFloat(1.0f, 2.0f);
+			mainDirection = vec3(0.0f, -35.0f, 0.0f);
 			randomDirection = vec3(RandomFloat(-1.0f, 1.0f), RandomFloat(-1.0f, 1.0f), RandomFloat(-1.0f, 1.0f));
 			
 			particleList[index].life = 5.0f; 
@@ -188,7 +159,7 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 			particleList[index].red = 50.0f;
 			particleList[index].green = 200.0f;
 			particleList[index].blue = 255.0f;
-			particleList[index].alpha = (RandomFloat(0.0f, 255.0f)) / 3;
+			particleList[index].alpha = (RandomFloat(100.0f, 255.0f)) / 3;
 		}
 
 		else if (mode == STARS_DEMO) {
@@ -201,9 +172,9 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 			particleList[index].position = vec3(RandomFloat(-15.0f + deltaPosition.x, 15.0f + deltaPosition.x), RandomFloat(-15.0f + deltaPosition.y, 15.0f + deltaPosition.y), RandomFloat(-25.0f + deltaPosition.z, -20.0f + deltaPosition.z));
 			particleList[index].size = RandomFloat(0.08f, 0.5f); 
 			particleList[index].red = 255.0f;
-			particleList[index].green = 255.0f;
+			particleList[index].green = RandomFloat(180.0f, 255.0f);
 			particleList[index].blue = RandomFloat(0.0f, 255.0f);
-			particleList[index].alpha = (RandomFloat(0.0f, 255.0f)) / 3;
+			particleList[index].alpha = (RandomFloat(100.0f, 255.0f)) / 3;
 		}
 			
 		else if (mode == CLOUD_DEMO) {
@@ -212,20 +183,20 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 			mainDirection = vec3(1.0f, 0.0f, 0.0f);
 			randomDirection = vec3(0.0f, 0.0f, 0.0f);
 
-			particleList[index].life = RandomFloat(6.0f, 7.0f); 
-			particleList[index].position = vec3(-5.0f, RandomFloat(-0.5f + offset.y, 0.5f + offset.y), RandomFloat(-4.5f + offset.x, -3.5f + offset.x));
+			particleList[index].life = RandomFloat(9.0f, 10.0f); 
+			particleList[index].position = vec3(-3.0f, RandomFloat(-0.5f + offset.y, 0.5f + offset.y), RandomFloat(-4.5f + offset.x, -3.5f + offset.x));
 			particleList[index].size = RandomFloat(0.1f, 0.7f); 
-			particleList[index].red = 255;
-			particleList[index].green = 255;
-			particleList[index].blue = 255;
-			particleList[index].alpha = (RandomFloat(215.0f, 255.0f)) / 3;
+			particleList[index].red = 255.0f;
+			particleList[index].green = 255.0f;
+			particleList[index].blue = 255.0f;
+			particleList[index].alpha = 0.0f;
 		}
 
 		else if (mode == FOUNTAIN_DEMO) {
 				
 			spread = 1.5f;
 			mainDirection = vec3(0.0f, 4.0f, 0.0f);
-			randomDirection = vec3(RandomFloat(-1.0f, 1.0f), RandomFloat(-1.0f, 1.0f), RandomFloat(-1.0f, 1.0f)); 
+			randomDirection = vec3(RandomFloat(-1.0f + fountainDirection.x, 1.0f + fountainDirection.x), RandomFloat(-1.0f, 1.0f), RandomFloat(-1.0f + fountainDirection.z, 1.0f + fountainDirection.z));
 			
 			particleList[index].life = 5.0f; 
 			particleList[index].position = vec3(0.0f, 0.0f, -2.0f);
@@ -233,7 +204,7 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 			particleList[index].red = 50.0f;
 			particleList[index].green = 200.0f;
 			particleList[index].blue = 255.0f;
-			particleList[index].alpha = (RandomFloat(0.0f, 255.0f)) / 3;
+			particleList[index].alpha = (RandomFloat(100.0f, 255.0f)) / 3;
 		}
 
 		else if (mode == SMOKE_DEMO) {
@@ -245,9 +216,19 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 			particleList[index].life = RandomFloat(7.0f, 8.0f); 
 			particleList[index].position = vec3(RandomFloat(-0.2f + offset.x, 0.2f + offset.x), 0.0f, RandomFloat(-10.2f + offset.y, -9.8f + offset.y));
 			particleList[index].size = RandomFloat(0.1f, 0.3f); 
-			particleList[index].red = 40.0f;
-			particleList[index].green = 40.0f;
-			particleList[index].blue = 40.0f;
+			
+			if (whiteBackground) {
+				
+				particleList[index].red = 50.0f;
+				particleList[index].green = 50.0f;
+				particleList[index].blue = 50.0f;
+			}
+			else {
+				
+				particleList[index].red = 200.0f;
+				particleList[index].green = 200.0f;
+				particleList[index].blue = 200.0f;
+			}
 			particleList[index].alpha = RandomFloat(215.0f, 255.0f) / 3;
 		}
 
@@ -278,9 +259,9 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 
 		if (particle.life > 0.0f) {
 
-			/* Decrease life */
 			if (!pause) {
 				
+				/* Decrease life */
 				particle.life -= age;
 			}
 
@@ -291,12 +272,12 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 					/* Simulate physics */
 					if (mode == SNOW_DEMO) {
 						
-						particle.speed += vec3(0.0f, -9.81f, 0.0f) * (float)age * 0.5f;
+						particle.speed += vec3(0.0f, gravity, 0.0f) * (float)age * 0.5f;
 					}
 
 					else if (mode == RAIN_DEMO) {
 						
-						particle.speed += vec3(0.0f, -9.81f, 0.0f) * (float)age * 0.5f;
+						particle.speed += vec3(0.0f, gravity, 0.0f) * (float)age * 0.5f;
 					}
 
 					else if (mode == STARS_DEMO) {
@@ -318,9 +299,20 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 							offset.y += RandomFloat(-0.0001f, 0.0001f);
 						}
 
-						if (particle.life <= 1.0f) {
+						if (particle.life <= 7.0f) {
 
-							particle.alpha /= ((RandomFloat(0.005f, 0.01f) / 2) + 1.0f);
+							if (particle.alpha < ((RandomFloat(215.0f, 255.0f)) / 3)) {
+
+								particle.alpha += 1.5f;
+							}
+						}
+
+						if (particle.life <= 2.5f) {
+
+							if (particle.alpha > 0.0f) {
+								
+								particle.alpha -= 1.5f;
+							}
 						}
 					}
 
@@ -331,30 +323,33 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 
 					else if (mode == SMOKE_DEMO) {
 
-						if ((int)currentTime % 5 == 0) {
-
-							windEffect.x = (RandomFloat(-0.6f, 0.6f));
-							windEffect.z = (RandomFloat(-0.6f, 0.6f));
-						}
+						particle.speed += vec3(windEffect.x, 0.0f, windEffect.z) * (float)age * 0.5f;
+						particle.size += RandomFloat(0.002f, 0.006f);
 
 						if (particle.position.x >= -0.1f && particle.position.x <= 0.1f) {
+							
 							offset.x += RandomFloat(-0.001f, 0.001f);
 						}
 
 						if (particle.position.z >= -10.1f && particle.position.z <= 9.9f) {
+							
 							offset.y += RandomFloat(-0.001f, 0.001f);
 						}
-					
-							particle.speed += vec3(windEffect.x, 0.0f, windEffect.z) * (float)age * 0.5f;
-							particle.size += 0.004f;
 
 						if (particle.life <= 6.0f) {
 
 							particle.alpha /= ((RandomFloat(0.000005f, 0.00001f) / 2) + 1.0f);
 						}
+
+						if ((int)currentTime % (int)RandomFloat(3.0f, 7.0f) == 0) {
+
+							windEffect.x = (RandomFloat(-2.5f, 2.5f));
+							windEffect.z = (RandomFloat(-2.5f, 2.5f));
+						}
 					}
 
 					else if (mode == FIRE_DEMO) {
+						
 						particle.speed += vec3(0.0f, 0.0f, 0.0f) * (float)age * 0.5f;
 					}
 
@@ -376,7 +371,8 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 			}
 
 			else {
-				/* Particles that just died will be put at the end of the buffer */
+				
+				/* Particles that died will be put at the end of the buffer */
 				particle.cameraDistance = -1.0f;
 			}
 			/* Go to next particle */
@@ -441,8 +437,8 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 
 	/* Uniform variables */
 	glUniform1i(textureID, 0);
-	glUniform3f(cameraRightID, viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
-	glUniform3f(cameraUpID, viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
+	glUniform3f(cameraHorizontalID, viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
+	glUniform3f(cameraVerticalID, viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
 	glUniformMatrix4fv(viewProjMatrixID, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
 	glUniformMatrix4fv(orientationID, 1, GL_FALSE, &orientation[0][0]);
 
@@ -473,6 +469,32 @@ void ParticleEmitter::DrawParticles(GLFWwindow* window, int mode, float gravity,
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+}
+
+int ParticleEmitter::NextParticle() {
+
+	for (int i = currentParticle; i < PARTICLE_COUNT; i++) {
+
+		if (particleList[i].life < 0) {
+
+			currentParticle = i;
+
+			return i;
+		}
+	}
+
+	for (int i = 0; i < currentParticle; i++) {
+
+		if (particleList[i].life < 0) {
+
+			currentParticle = i;
+
+			return i;
+		}
+	}
+
+	/* All particles are taken, override the first one */
+	return 0;
 }
 
 void ParticleEmitter::CleanUp(GLFWwindow* window) {
